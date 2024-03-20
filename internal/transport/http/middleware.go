@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) Authenticate(ctx *gin.Context) {
+func (h *Handler) AuthenticateMiddleware(ctx *gin.Context) {
 	token := ctx.GetHeader("Authorization")
 
 	user, err := h.useCase.Users.GetByToken(ctx, token)

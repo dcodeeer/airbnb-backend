@@ -21,7 +21,7 @@ type IUsers interface {
 	GetOneById(ctx context.Context, userId int) (*core.User, error)
 	GetByToken(ctx context.Context, token string) (*core.User, error)
 	Update(ctx context.Context, user *core.User) error
-	// UpdatePhoto(ctx context.Context, userId int, bytes []byte) (image string, err error)
+	UpdatePhoto(ctx context.Context, userId int, bytes []byte) (image string, err error)
 }
 
 func New(repo *repository.Repo) *UseCase {

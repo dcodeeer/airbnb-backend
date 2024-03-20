@@ -20,6 +20,7 @@ type IUsers interface {
 	EmailExists(ctx context.Context, email string) error
 	CreateToken(ctx context.Context, userId int) (string, error)
 	Update(ctx context.Context, user *core.User) error
+	UpdatePhoto(ctx context.Context, userId int, path string) error
 
 	SendRecoveryKey(ctx context.Context, email string) error
 	GetUserIdByRecoveryKey(ctx context.Context, key string) (int, error)

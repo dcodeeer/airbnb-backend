@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const bodyMaxBody = 3 * 1024 * 1024
+
 type Handler struct {
 	useCase *application.UseCase
 }
@@ -29,6 +31,11 @@ func (h *Handler) Run(socket string) error {
 
 func (h *Handler) router() http.Handler {
 	r := gin.New()
+
+	r.Use(func(ctx *gin.Context) {
+		ctx.Request.Body = http.MaxBytesReader(ctx.Writer, ctx.Request.Body, bodyMaxBody)
+		ctx.Next()
+	})
 
 	h.registerRoutes(r)
 

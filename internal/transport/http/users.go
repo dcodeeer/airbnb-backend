@@ -2,6 +2,7 @@ package http
 
 import (
 	"api/internal/core"
+	"io"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -15,9 +16,10 @@ func (h *Handler) setupUsers(r *gin.RouterGroup) {
 	users.POST("/recovery", h.usersSendRecoveryKey)
 	users.POST("/recovery/confirm", h.usersConfirmRecoveryKey)
 	{
-		private := users.Use(h.Authenticate)
+		private := users.Use(h.AuthenticateMiddleware)
 		private.GET("/", h.usersGetMe)
-		private.GET("/update", h.usersUpdate)
+		private.PATCH("/update", h.usersUpdate)
+		private.PATCH("/updatePhoto", h.usersUpdatePhoto)
 	}
 }
 
@@ -106,6 +108,25 @@ func (h *Handler) usersUpdate(ctx *gin.Context) {
 	}
 
 	ctx.JSON(200, user)
+}
+
+func (h *Handler) usersUpdatePhoto(ctx *gin.Context) {
+	bytes, err := io.ReadAll(ctx.Request.Body)
+	if err != nil {
+		ctx.Status(400)
+		return
+	}
+
+	userId := h.GetUserID(ctx)
+
+	imagePath, err := h.useCase.Users.UpdatePhoto(ctx, userId, bytes)
+	if err != nil {
+		log.Println(err)
+		ctx.Status(400)
+		return
+	}
+
+	ctx.JSON(200, gin.H{`image`: imagePath})
 }
 
 func (h *Handler) usersConfirmRecoveryKey(ctx *gin.Context) {

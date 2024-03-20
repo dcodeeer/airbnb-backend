@@ -136,3 +136,12 @@ func (r *users) SetPasswordByUserId(ctx context.Context, userId int, password st
 	}
 	return nil
 }
+
+func (r *users) UpdatePhoto(ctx context.Context, userId int, path string) error {
+	query := "UPDATE users.users SET photo = $1 WHERE id = $2"
+	err := r.db.QueryRow(query, path, userId).Scan()
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+	return nil
+}

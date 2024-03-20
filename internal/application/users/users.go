@@ -5,12 +5,20 @@ import (
 	"api/internal/infrastructure/repository"
 	"context"
 	"log"
+	"net/http"
+	"os"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type users struct {
 	repo repository.IUsers
+}
+
+var imageTypes = map[string]string{
+	"image/png":  ".png",
+	"image/jpeg": ".jpeg",
+	"image/webp": ".webp",
 }
 
 func New(repo repository.IUsers) *users {
@@ -63,6 +71,36 @@ func (s *users) GetByToken(ctx context.Context, token string) (*core.User, error
 
 func (s *users) Update(ctx context.Context, user *core.User) error {
 	return s.repo.Update(ctx, user)
+}
+
+func (s *users) UpdatePhoto(ctx context.Context, userId int, bytes []byte) (string, error) {
+	filename, err := core.GenerateRandomString(64)
+	if err != nil {
+		return "", err
+	}
+
+	mime := http.DetectContentType(bytes)
+	ext, ok := imageTypes[mime]
+	if ok {
+		filename += ext
+	} else {
+		return "", core.ErrUnsupportedImageFormat
+	}
+
+	file, err := os.Create("uploads/" + filename)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+
+	_, err = file.Write(bytes)
+	if err != nil {
+		return "", err
+	}
+
+	err = s.repo.UpdatePhoto(ctx, userId, filename)
+
+	return "", err
 }
 
 func (s *users) SendRecoveryKey(ctx context.Context, email string) error {
