@@ -1,6 +1,7 @@
 package application
 
 import (
+	"api/internal/application/estates"
 	"api/internal/application/users"
 	"api/internal/core"
 	"api/internal/infrastructure/repository"
@@ -8,7 +9,8 @@ import (
 )
 
 type UseCase struct {
-	Users IUsers
+	Users   IUsers
+	Estates IEstates
 }
 
 type IUsers interface {
@@ -24,8 +26,25 @@ type IUsers interface {
 	UpdatePhoto(ctx context.Context, userId int, bytes []byte) (image string, err error)
 }
 
+type IBooking interface {
+	Add(ctx context.Context, estate *core.Estate) error
+	UpdateStatus(ctx context.Context, estateId int) error
+}
+
+type IEstates interface {
+	Add(ctx context.Context, estate *core.Estate) error
+	GetAll(ctx context.Context) (*[]core.Estate, error)
+	GetById(ctx context.Context, id int) (*core.Estate, error)
+	// Remove(ctx context.Context, id int) error
+}
+
+type IMessages interface {
+	Add(ctx context.Context) error
+}
+
 func New(repo *repository.Repo) *UseCase {
 	return &UseCase{
-		Users: users.New(repo.Users),
+		Users:   users.New(repo.Users),
+		Estates: estates.New(repo.Estates),
 	}
 }

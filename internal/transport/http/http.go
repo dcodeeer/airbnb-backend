@@ -36,6 +36,7 @@ func (h *Handler) router() http.Handler {
 		ctx.Request.Body = http.MaxBytesReader(ctx.Writer, ctx.Request.Body, bodyMaxBody)
 		ctx.Next()
 	})
+	r.Use(h.CORS)
 
 	h.registerRoutes(r)
 
@@ -47,4 +48,5 @@ func (h *Handler) registerRoutes(r *gin.Engine) {
 
 	h.setupUsers(api)
 	h.setupBooking(api)
+	h.setupEstates(api)
 }

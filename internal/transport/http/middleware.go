@@ -1,6 +1,8 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,4 +27,15 @@ func (h *Handler) GetUserID(ctx *gin.Context) int {
 	}
 
 	return value.(int)
+}
+
+func (h *Handler) CORS(ctx *gin.Context) {
+	ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	ctx.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	ctx.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	if ctx.Request.Method == "OPTIONS" {
+		ctx.Writer.WriteHeader(http.StatusOK)
+		return
+	}
+	ctx.Next()
 }

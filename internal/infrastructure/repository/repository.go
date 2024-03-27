@@ -2,6 +2,7 @@ package repository
 
 import (
 	"api/internal/core"
+	"api/internal/infrastructure/repository/estates"
 	"api/internal/infrastructure/repository/users"
 	"context"
 
@@ -9,7 +10,8 @@ import (
 )
 
 type Repo struct {
-	Users IUsers
+	Users   IUsers
+	Estates IEstates
 }
 
 type IUsers interface {
@@ -28,8 +30,16 @@ type IUsers interface {
 	SetPasswordByUserId(ctx context.Context, userId int, password string) error
 }
 
+type IEstates interface {
+	Add(ctx context.Context, estate *core.Estate) error
+	GetAll(ctx context.Context) (*[]core.Estate, error)
+	GetOne(ctx context.Context, id int) (*core.Estate, error)
+	// Remove(ctx context.Context, id int) error
+}
+
 func New(db *sqlx.DB) *Repo {
 	return &Repo{
-		Users: users.New(db),
+		Users:   users.New(db),
+		Estates: estates.New(db),
 	}
 }
